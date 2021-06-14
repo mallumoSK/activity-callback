@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+/secure-android.gradle
+/gradle/wrapper/gradle-wrapper.jar
+/.idea/
