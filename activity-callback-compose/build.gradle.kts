@@ -6,7 +6,7 @@ plugins {
 apply("../secure-android.gradle")
 
 group = "tk.mallumo"
-version = "1.0.0"
+version = "1.0.1"
 
 android {
     compileSdk = 30
@@ -24,12 +24,13 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+//            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
     composeOptions {
         kotlinCompilerExtensionVersion = rootProject.extra["compose_version"] as String
+        @Suppress("ImplicitThis")
         kotlinCompilerVersion = rootProject.extra["kotlin_version"] as String
         useLiveLiterals = true
     }
@@ -41,7 +42,7 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs += listOf(
+        freeCompilerArgs = listOf(
             "-Xallow-jvm-ir-dependencies",
             "-XXLanguage:+NonParenthesizedAnnotationsOnFunctionalTypes")
     }

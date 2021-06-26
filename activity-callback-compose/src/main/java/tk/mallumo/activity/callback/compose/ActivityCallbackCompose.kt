@@ -1,11 +1,11 @@
 package tk.mallumo.activity.callback.compose
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityOptionsCompat
 import tk.mallumo.activity.callback.ActivityCallback
@@ -24,23 +24,40 @@ import kotlin.reflect.KClass
 @Suppress("unused")
 val LocalActivityCallback = staticCompositionLocalOf<ActivityCallback> { error("ActivityCallback is not implemented by CompositionLocalProvider") }
 
-/**
- * ## Tool for handling android activity response (intent or permission)
- * ### Example:
- * ```@kotlin
- * CompositionLocalProvider(LocalActivityResult provides ActivityCallback.remember()) {
- *      //...
- * }
- * ```
- * @see ActivityCallback.intent
- * @see ActivityCallback.permission
- */
 @Composable
 fun ActivityCallback.Companion.remember(): ActivityCallback {
     val ctx = LocalContext.current
-    return androidx.compose.runtime.remember(ctx) {
+    return remember(ctx) {
         if (ctx is ComponentActivity) get(ctx)
         else defaultPreview
+    }
+}
+
+@JvmInline
+value class ReferenceCallback(private val callback: () -> Unit) {
+    @Suppress("unused")
+    fun removeOnBackPressCallback() = callback()
+}
+
+@SuppressLint("ComposableNaming")
+@Composable
+fun ActivityCallback.OnBackPressContract.rememberOnBackPress(body: () -> Boolean): ReferenceCallback {
+
+    val reference = remember {
+        mutableStateOf<ActivityCallback.OnBackPressContract.Reference?>(null)
+    }
+
+    DisposableEffect(key1 = Unit) {
+        reference.value = register(body)
+
+        onDispose {
+            reference.value?.release()
+        }
+    }
+    return remember {
+        ReferenceCallback {
+            reference.value?.release()
+        }
     }
 }
 
@@ -61,16 +78,8 @@ private val defaultPreview
             }
 
         override val permission: ActivityCallback.PermissionContract
-            get() = object : ActivityCallback.PermissionContract {
-                override fun requestSelf(vararg permission: String, response: ActivityCallback.PermissionScope.() -> Unit) {
-                    Log.d("permission.requestSelf", permission.toString())
-                }
+            get() = object : ActivityCallback.PermissionContract {}
 
-                override fun checkSelf(vararg permissions: String): Boolean {
-                    Log.d("permission.checkSelf", permission.toString())
-                    return true
-                }
-
-            }
-
+        override val onBackPress: ActivityCallback.OnBackPressContract
+            get() = object : ActivityCallback.OnBackPressContract {}
     }

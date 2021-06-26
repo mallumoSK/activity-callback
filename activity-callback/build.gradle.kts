@@ -23,7 +23,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+//            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 
@@ -34,13 +34,12 @@ android {
 
     kotlinOptions {
         jvmTarget = "1.8"
-        freeCompilerArgs += listOf(
+        freeCompilerArgs = listOf(
             "-Xallow-jvm-ir-dependencies",
-            "-XXLanguage:+NonParenthesizedAnnotationsOnFunctionalTypes")
+            "-XXLanguage:+NonParenthesizedAnnotationsOnFunctionalTypes"
+        )
     }
 }
-
-
 
 dependencies {
     implementation("androidx.appcompat:appcompat:${rootProject.extra["appcompat"]}")
